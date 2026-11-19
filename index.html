@@ -73,6 +73,7 @@ input:focus{outline:2px solid var(--leaf);border-color:transparent}
 .row{display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:1px solid #f1ebdc;gap:10px}
 .row:last-child{border:0}
 .nm{font-weight:700}.ig{font-size:13px;color:var(--muted)}
+.igl{color:var(--green);font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .cnt{font-size:14px;color:var(--green);font-weight:700;white-space:nowrap}
 .mini{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin:10px 0 4px}
 .mini span{aspect-ratio:1;border-radius:50%;background:var(--pink)}
@@ -134,7 +135,7 @@ html[lang=uk] .gl{font-family:'Balsamiq Sans',system-ui,sans-serif;font-weight:7
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
-const APP_VERSION = '6 · языки';
+const APP_VERSION = '7 · instagram';
 const BASE = location.origin + location.pathname;
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -346,6 +347,11 @@ function viewLogin(next){
     }catch(err){ e.textContent='Нет связи. Попробуй ещё раз.' }
   };
 }
+function igLink(ig){
+  const u=String(ig||'').replace(/^@/,'');
+  if(!/^[A-Za-z0-9._]{1,30}$/.test(u)) return esc(ig);
+  return `<a class="igl" href="https://instagram.com/${u}" target="_blank" rel="noopener">@${esc(u)}</a>`;
+}
 function mini(v){let h='';for(let i=1;i<=STAMPS;i++)h+=`<span class="${i<=v?'f':''}"></span>`;return `<div class="mini">${h}</div>`}
 function cardLink(id){return BASE+'?k='+encodeURIComponent(id)}
 async function copyLink(id){
@@ -368,10 +374,10 @@ function drawClient(c, msg){
   if(msg) body=msg;
   else if(c.today) body=`<p class="muted">Сегодня визит уже засчитан ✓</p>${mini(c.visits)}
       <button class="btn big ghost" id="force">Всё равно добавить ещё один</button>`;
-  else if(done) body=`<p class="muted">${esc(c.ig)} · уже ${STAMPS} ${ruVisits(STAMPS)}</p>${mini(c.visits)}
+  else if(done) body=`<p class="muted">${igLink(c.ig)} · уже ${STAMPS} ${ruVisits(STAMPS)}</p>${mini(c.visits)}
       <p style="font-weight:700;margin-top:8px">Сегодня 10-й визит: скидка −50 % 🎉</p>
       <button class="btn big" id="add">Скидка −50 % использована ✓</button>`;
-  else body=`<p class="muted">${esc(c.ig)} · ${c.visits} из ${STAMPS}</p>${mini(c.visits)}
+  else body=`<p class="muted">${igLink(c.ig)} · ${c.visits} из ${STAMPS}</p>${mini(c.visits)}
       <button class="btn big" id="add">+1 визит</button>`;
   $app.innerHTML=`<div class="panel res" id="res"><h3 class="gl">${esc(c.name)}</h3>${body}</div>${navLinks(c.id)}`;
   const add=document.getElementById('add'), force=document.getElementById('force'), und=document.getElementById('undo');
@@ -520,7 +526,7 @@ function drawList(q=''){
   list.innerHTML = rows.length ? rows.map(c=>`
     <div class="sw" data-id="${esc(c.id)}">
     <button class="del" aria-label="Удалить">${BIN_SVG}Удалить</button>
-    <div class="row"><div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="ig">${esc(c.ig)}${({sk:' 🇸🇰',uk:' 🇺🇦',en:' 🇬🇧'})[c.lang]||''}${c.today?' · сегодня ✓':''}</div></div>
+    <div class="row"><div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="ig">${igLink(c.ig)}${({sk:' 🇸🇰',uk:' 🇺🇦',en:' 🇬🇧'})[c.lang]||''}${c.today?' · сегодня ✓':''}</div></div>
     <div class="cnt">${c.visits}/${STAMPS}</div>
     <a class="btn${c.visits>=STAMPS?' pink':''}" href="${BASE}?a=${encodeURIComponent(c.id)}">${c.visits>=STAMPS?'−50 %':'открыть'}</a></div></div>`).join('')
     : `<p class="muted" style="padding:12px 18px">${allClients.length?'Никого не нашла':'Пока нет клиенток'}</p>`;
