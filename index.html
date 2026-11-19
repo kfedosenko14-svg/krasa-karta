@@ -335,7 +335,9 @@ async function startScan(){
       if(code&&code.data){
         const id=idFromQR(code.data);
         if(id){ if(navigator.vibrate) navigator.vibrate(60); stopScan(); location.href=BASE+'?a='+encodeURIComponent(id); return }
-        ov.querySelector('.bar p').textContent='Это не карточка krasa.tt 🙈';
+        ov.querySelector('.bar p').textContent = code.data.split('?')[0]===BASE
+          ? 'Это QR для регистрации: его клиентки сканируют своей камерой. Наведи на QR с карточки клиентки 💗'
+          : 'Это не карточка krasa.tt 🙈';
       }
     }
     scanRAF=requestAnimationFrame(tick);
