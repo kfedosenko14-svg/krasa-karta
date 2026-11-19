@@ -92,6 +92,24 @@ a.btn{text-decoration:none;text-align:center}
 .scanov .bar{padding:16px 16px max(20px,env(safe-area-inset-bottom));background:var(--bg);text-align:center}
 .scanov .bar p{margin-bottom:10px;color:var(--ink)}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+/* swipe-to-delete rows */
+#list{padding:6px 0;overflow:hidden}
+.sw{position:relative;overflow:hidden;border-bottom:1px solid #f1ebdc}
+.sw:last-child{border:0}
+.sw .del{position:absolute;top:0;right:0;bottom:0;width:88px;background:#e0475f;color:#fff;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 13px -apple-system,system-ui,sans-serif;gap:2px;cursor:pointer}
+.sw .del svg{width:26px;height:26px}
+.sw .row{position:relative;background:#fff;border:0;padding:12px 18px;touch-action:pan-y;transition:transform .22s ease;will-change:transform}
+.sw .row.drag{transition:none}
+.sw.gone{transition:height .25s ease,opacity .25s ease;opacity:0}
+/* confirm sheet */
+.modal{position:fixed;inset:0;background:rgba(30,40,20,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom));animation:fade .15s}
+.modal .sheet{background:#fff;border-radius:22px;width:100%;max-width:420px;padding:22px 18px 16px;text-align:center;animation:up .2s ease}
+.modal .bin{width:54px;height:54px;border-radius:50%;background:#fde4e9;color:#e0475f;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.modal h3{font:700 19px -apple-system,system-ui,sans-serif;color:var(--ink);margin-bottom:6px}
+.modal p{color:var(--muted);font-size:15px;margin-bottom:16px}
+.modal .btn{display:block;width:100%;padding:15px;font-size:17px;border-radius:14px;margin-top:8px}
+.modal .btn.red{background:#e0475f;color:#fff}
+@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(40px);opacity:0}}
 .top a{color:var(--muted);font-size:14px}
 </style>
 </head>
@@ -308,13 +326,32 @@ function navLinks(id){
     <div class="links">
     ${id?`<button class="btn ghost" onclick="copyLink('${esc(id)}')">Ссылка на её карточку</button>`:''}
     <a class="btn ghost" href="${BASE}?admin">Все клиентки</a></div>
-    ${id?`<p class="center" style="margin-top:22px"><button class="btn ghost" style="color:#b4415e;border-color:#f0c9d4" onclick="removeClient('${esc(id)}')">Удалить клиентку</button></p>`:''}`;
+    ${id?`<p class="center" style="margin-top:22px"><button class="btn ghost" style="color:#b4415e;border-color:#f0c9d4" onclick="removeFromPage('${esc(id)}')">Удалить клиентку</button></p>`:''}`;
 }
-async function removeClient(id){
-  if(!confirm('Точно удалить эту клиентку? Её карточка перестанет работать.')) return;
-  let r; try{ r=await adminApi('remove',{id}); }catch(e){ toast('Нет связи'); return }
-  if(!r.ok){ toast('Ошибка: '+r.err); return }
-  toast('Удалено'); setTimeout(()=>location.href=BASE+'?admin',700);
+const BIN_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
+function askDelete(name){
+  return new Promise(res=>{
+    const m=document.createElement('div'); m.className='modal';
+    m.innerHTML=`<div class="sheet"><div class="bin">${BIN_SVG}</div>
+      <h3>Удалить ${esc(name)}?</h3><p>Её карточка перестанет работать. Это нельзя отменить.</p>
+      <button class="btn red" id="mY">Удалить</button><button class="btn ghost" id="mN">Отмена</button></div>`;
+    document.body.appendChild(m);
+    const done=v=>{m.remove();res(v)};
+    m.querySelector('#mY').onclick=()=>done(true);
+    m.querySelector('#mN').onclick=()=>done(false);
+    m.onclick=e=>{if(e.target===m)done(false)};
+  });
+}
+async function removeClient(id,name){
+  const c=allClients.find(x=>x.id===id);
+  if(!await askDelete(name||(c&&c.name)||'клиентку')) return false;
+  let r; try{ r=await adminApi('remove',{id}); }catch(e){ toast('Нет связи'); return false }
+  if(!r.ok){ toast('Ошибка: '+r.err); return false }
+  toast('Удалено');
+  return true;
+}
+async function removeFromPage(id,name){
+  if(await removeClient(id,name)) setTimeout(()=>location.href=BASE+'?admin',700);
 }
 
 /* in-app QR scanner (camera inside the master's icon) */
@@ -403,11 +440,56 @@ async function loadList(){
 function drawList(q=''){
   q=q.toLowerCase().trim();
   const rows=allClients.filter(c=>!q||(c.name+' '+c.ig).toLowerCase().includes(q));
-  document.getElementById('list').innerHTML = rows.length ? rows.map(c=>`
+  const list=document.getElementById('list');
+  list.innerHTML = rows.length ? rows.map(c=>`
+    <div class="sw" data-id="${esc(c.id)}">
+    <button class="del" aria-label="Удалить">${BIN_SVG}Удалить</button>
     <div class="row"><div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="ig">${esc(c.ig)}${c.today?' · сегодня ✓':''}</div></div>
     <div class="cnt">${c.visits}/${STAMPS}</div>
-    <a class="btn${c.visits>=STAMPS?' pink':''}" href="${BASE}?a=${encodeURIComponent(c.id)}">${c.visits>=STAMPS?'−50 %':'открыть'}</a></div>`).join('')
-    : `<p class="muted">${allClients.length?'Никого не нашла':'Пока нет клиенток'}</p>`;
+    <a class="btn${c.visits>=STAMPS?' pink':''}" href="${BASE}?a=${encodeURIComponent(c.id)}">${c.visits>=STAMPS?'−50 %':'открыть'}</a></div></div>`).join('')
+    : `<p class="muted" style="padding:12px 18px">${allClients.length?'Никого не нашла':'Пока нет клиенток'}</p>`;
+  list.querySelectorAll('.sw').forEach(setupSwipe);
+}
+
+/* swipe a row right-to-left to reveal the red bin (like Instagram chats) */
+const OPEN_X=-88;
+let openRow=null;
+function closeRow(row){ if(row){ row.style.transform=''; row._open=false; } if(openRow===row) openRow=null; }
+function setupSwipe(sw){
+  const row=sw.querySelector('.row'), del=sw.querySelector('.del');
+  let x0=0,y0=0,dx=0,drag=false,decided=false,horiz=false,moved=false;
+  row.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0) return;
+    x0=e.clientX;y0=e.clientY;dx=0;drag=true;decided=false;horiz=false;moved=false;
+  });
+  row.addEventListener('pointermove',e=>{
+    if(!drag) return;
+    const mx=e.clientX-x0, my=e.clientY-y0;
+    if(!decided){ if(Math.abs(mx)<8&&Math.abs(my)<8) return; decided=true; horiz=Math.abs(mx)>Math.abs(my);
+      if(horiz){ row.setPointerCapture(e.pointerId); row.classList.add('drag'); if(openRow&&openRow!==row) closeRow(openRow); } }
+    if(!horiz) return;
+    moved=true;
+    const base=row._open?OPEN_X:0;
+    dx=Math.max(OPEN_X-30,Math.min(0,base+mx));
+    row.style.transform=`translateX(${dx}px)`;
+  });
+  const end=()=>{
+    if(!drag) return; drag=false; row.classList.remove('drag');
+    if(!horiz) return;
+    if(dx<OPEN_X/2){ row.style.transform=`translateX(${OPEN_X}px)`; row._open=true; openRow=row; }
+    else closeRow(row);
+  };
+  row.addEventListener('pointerup',end); row.addEventListener('pointercancel',end);
+  // a swipe must not count as a tap on "открыть"; a tap on an open row closes it
+  row.addEventListener('click',e=>{ if(moved||row._open){ e.preventDefault(); e.stopPropagation(); if(!moved) closeRow(row); moved=false; } },true);
+  del.onclick=async()=>{
+    const id=sw.dataset.id, c=allClients.find(x=>x.id===id);
+    if(await removeClient(id,c&&c.name)){
+      sw.style.height=sw.offsetHeight+'px'; sw.offsetHeight; sw.classList.add('gone'); sw.style.height='0px';
+      allClients=allClients.filter(x=>x.id!==id);
+      setTimeout(()=>drawList(document.getElementById('q').value),280);
+    } else closeRow(row);
+  };
 }
 
 /* ================= router ================= */
