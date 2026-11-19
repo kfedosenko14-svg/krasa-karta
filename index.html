@@ -307,7 +307,14 @@ function navLinks(id){
   return `<button class="btn big" onclick="startScan()">📷 Сканировать следующую</button>
     <div class="links">
     ${id?`<button class="btn ghost" onclick="copyLink('${esc(id)}')">Ссылка на её карточку</button>`:''}
-    <a class="btn ghost" href="${BASE}?admin">Все клиентки</a></div>`;
+    <a class="btn ghost" href="${BASE}?admin">Все клиентки</a></div>
+    ${id?`<p class="center" style="margin-top:22px"><button class="btn ghost" style="color:#b4415e;border-color:#f0c9d4" onclick="removeClient('${esc(id)}')">Удалить клиентку</button></p>`:''}`;
+}
+async function removeClient(id){
+  if(!confirm('Точно удалить эту клиентку? Её карточка перестанет работать.')) return;
+  let r; try{ r=await adminApi('remove',{id}); }catch(e){ toast('Нет связи'); return }
+  if(!r.ok){ toast('Ошибка: '+r.err); return }
+  toast('Удалено'); setTimeout(()=>location.href=BASE+'?admin',700);
 }
 
 /* in-app QR scanner (camera inside the master's icon) */
