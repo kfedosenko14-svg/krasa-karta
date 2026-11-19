@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>krasa.tt</title>
+<meta name="theme-color" content="#fcd3e3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="krasa.tt">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link href="https://fonts.googleapis.com/css2?family=Gluten:wght@800&family=Sour+Gummy:wght@500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#6a8a2e; --ink:#4d6820; --cream:#fffad6; --pink:#fcd3e3; --pink-mid:#f9c6dc;
+  --leaf:#a9cf6a; --bg:#fbf6ea; --muted:#8a8f6e; --line:#ebe3cf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:500 16px/1.4 'Sour Gummy',system-ui,sans-serif;min-height:100vh;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+.wrap{max-width:420px;margin:0 auto}
+.gl{font-family:Gluten,cursive;font-weight:800}
+.hide{display:none!important}
+.center{text-align:center}
+.muted{color:var(--muted)}
+.speck{background-image:
+  radial-gradient(circle at 12% 18%,rgba(240,170,200,.8) 0 1.2px,transparent 1.6px),
+  radial-gradient(circle at 37% 72%,rgba(240,170,200,.8) 0 1px,transparent 1.4px),
+  radial-gradient(circle at 64% 30%,rgba(240,170,200,.8) 0 1.3px,transparent 1.7px),
+  radial-gradient(circle at 83% 64%,rgba(240,170,200,.8) 0 1px,transparent 1.4px),
+  radial-gradient(circle at 22% 88%,rgba(240,170,200,.8) 0 1.1px,transparent 1.5px),
+  radial-gradient(circle at 91% 12%,rgba(240,170,200,.8) 0 1px,transparent 1.4px);
+  background-size:90px 70px}
+
+/* card */
+.front{border-radius:18px;background:var(--pink);aspect-ratio:1.6;border:1.5px solid var(--green);position:relative;overflow:hidden}
+.front .lbl{position:absolute;left:18px;top:14px;color:var(--green);font-size:13px;letter-spacing:1px}
+.front .logo{position:absolute;left:0;right:0;top:50%;transform:translateY(-38%);text-align:center;font:700 clamp(44px,15vw,64px)/1 'Playfair Display',serif;color:var(--green)}
+.front .est{position:absolute;left:18px;bottom:14px;color:var(--green);font-size:13px;opacity:.85}
+.front .who{position:absolute;right:18px;bottom:12px;color:var(--green);font-size:20px;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{margin-top:12px;border-radius:18px;background-color:var(--cream);padding:18px 14px 14px;border:1.5px solid var(--green)}
+.back .title{text-align:center;font-size:21px;color:var(--green);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.slot{aspect-ratio:1;position:relative;display:flex;align-items:center;justify-content:center}
+.slot svg{position:absolute;inset:0;width:100%;height:100%}
+.slot .pc{position:relative;font:800 clamp(12px,3.6vw,15px) Gluten,cursive;color:var(--green)}
+.slot.new svg.st{animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(0) rotate(-40deg)}100%{transform:scale(1)}}
+.rule{text-align:center;font-size:15px;color:var(--green);margin-top:12px}
+.status{text-align:center;margin-top:14px;font-size:19px;color:var(--green)}
+.reward{margin-top:10px;background:var(--pink);color:var(--green);border:1.5px solid var(--green);text-align:center;border-radius:14px;padding:12px;font-size:19px}
+.qrbox{margin:16px auto 0;background:#fff;border-radius:16px;padding:14px;width:fit-content;text-align:center;border:2px solid var(--pink)}
+.qrbox #qr img,.qrbox #qr canvas{display:block;margin:0 auto}
+.qrt{font-size:14px;color:var(--muted);margin-top:6px}
+.hint{margin-top:16px;background:#fff;border:1px dashed var(--green);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--ink)}
+
+/* forms & panels */
+.panel{background:#fff;border-radius:20px;padding:18px;border:1px solid var(--line);margin-top:12px}
+.panel h2{font-size:24px;color:var(--green);margin-bottom:8px}
+label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+input{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;font:500 16px 'Sour Gummy',sans-serif;background:var(--bg);color:var(--ink)}
+input:focus{outline:2px solid var(--leaf);border-color:transparent}
+.btn{display:inline-block;border:0;background:var(--green);color:#fff;border-radius:12px;padding:11px 14px;font:700 15px 'Sour Gummy',sans-serif;cursor:pointer;white-space:nowrap}
+.btn.big{display:block;width:100%;padding:18px;font-size:21px;border-radius:16px;margin-top:14px;white-space:normal;line-height:1.2}
+.ru{font-family:-apple-system,system-ui,sans-serif;font-weight:700;letter-spacing:-.2px}
+.btn.pink{background:var(--pink);color:var(--green);border:1.5px solid var(--green)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.5}
+.err{color:#b4415e;font-size:14px;margin-top:8px;min-height:1em}
+.row{display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:1px solid #f1ebdc;gap:10px}
+.row:last-child{border:0}
+.nm{font-weight:700}.ig{font-size:13px;color:var(--muted)}
+.cnt{font-size:14px;color:var(--green);font-weight:700;white-space:nowrap}
+.mini{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin:10px 0 4px}
+.mini span{aspect-ratio:1;border-radius:50%;background:var(--pink)}
+.mini span.f{background:var(--green)}
+.res{text-align:center}
+.res .emo{font-size:50px;line-height:1.1}
+a.btn{text-decoration:none;text-align:center}
+.res h3{font-size:30px;color:var(--green)}
+.res.gold{background:var(--green);border-color:var(--green)}
+.res.gold h3,.res.gold p{color:#fff}
+.links{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.top a{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="center muted" style="margin-top:40vh">…</p></div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const API = window.KRASA_API;
+const STAMPS = 9;
+const BASE = location.origin + location.pathname;
+const $app = document.getElementById('app');
+const params = new URLSearchParams(location.search);
+
+/* ---------- storage (never required) ---------- */
+const store = {
+  get(k){ try{return localStorage.getItem(k)}catch(e){return null} },
+  set(k,v){ try{localStorage.setItem(k,v)}catch(e){} },
+  del(k){ try{localStorage.removeItem(k)}catch(e){} },
+};
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function api(action, data={}){
+  const r = await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...data})});
+  return r.json();
+}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2600)}
+function navWord(n){return n===1?'návšteva':(n>=2&&n<=4)?'návštevy':'návštev'}
+function ruVisits(n){const a=n%10,b=n%100;return (a===1&&b!==11)?'визит':(a>=2&&a<=4&&(b<12||b>14))?'визита':'визитов'}
+function scallop(fill){
+  let d='';const n=12,R=48,r=43;
+  for(let i=0;i<=n*2;i++){const a=Math.PI*i/n,rr=i%2?r:R;d+=(i?'L':'M')+(50+rr*Math.cos(a)).toFixed(1)+' '+(50+rr*Math.sin(a)).toFixed(1)}
+  return `<svg viewBox="0 0 100 100"><path d="${d}Z" fill="${fill}" stroke="${fill}" stroke-width="5" stroke-linejoin="round"/></svg>`;
+}
+function star(i){
+  let d='';for(let k=0;k<10;k++){const a=-Math.PI/2+Math.PI*k/5,rr=k%2?20:44;d+=(k?'L':'M')+(50+rr*Math.cos(a)).toFixed(1)+' '+(52+rr*Math.sin(a)).toFixed(1)}
+  const rot=[-8,6,-4,10,-11,3,-6,9,-2][i%9];
+  return `<svg class="st" viewBox="0 0 100 100" style="transform:rotate(${rot}deg)"><path d="${d}Z" fill="#6a8a2e" stroke="#6a8a2e" stroke-width="7" stroke-linejoin="round"/></svg>`;
+}
+const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+/* ================= CLIENT: registration ================= */
+function viewRegister(){
+  document.title='krasa.tt · vernostná karta';
+  $app.innerHTML = `
+    <div class="front"><div class="lbl gl">vernostná karta</div><div class="logo">krasa.tt</div><div class="est">nail studio · Trnava</div></div>
+    <div class="panel">
+      <h2 class="gl">Vaša karta 💗</h2>
+      <p class="muted">Každá návšteva = 1 hviezdička. Na 10. návštevu máte zľavu 50 %.</p>
+      <form id="f">
+        <label for="n">Meno</label><input id="n" autocomplete="given-name" maxlength="40" required>
+        <label for="i">Instagram</label><input id="i" placeholder="@vas.instagram" autocapitalize="off" autocorrect="off" maxlength="40">
+        <button class="btn big" id="b">Vytvoriť kartu</button>
+        <div class="err" id="e"></div>
+      </form>
+    </div>`;
+  document.getElementById('f').onsubmit = async ev=>{
+    ev.preventDefault();
+    const b=document.getElementById('b'), e=document.getElementById('e');
+    const name=document.getElementById('n').value.trim(), ig=document.getElementById('i').value.trim();
+    if(!name){e.textContent='Napíšte, prosím, svoje meno.';return}
+    b.disabled=true;b.textContent='Chvíľku…';e.textContent='';
+    try{
+      const r=await api('register',{name,ig});
+      if(!r.ok) throw new Error(r.err);
+      store.set('krasa_id',r.id);
+      location.replace(BASE+'?k='+encodeURIComponent(r.id));
+    }catch(err){
+      e.textContent = err.message==='too_many' ? 'Skúste to, prosím, o chvíľu.' : 'Nepodarilo sa. Skúste to znova.';
+      b.disabled=false;b.textContent='Vytvoriť kartu';
+    }
+  };
+}
+
+/* ================= CLIENT: card ================= */
+let shown=-1, pollT=null, pollUntil=0;
+async function viewCard(id){
+  store.set('krasa_id',id);
+  $app.innerHTML = `
+    <div class="front"><div class="lbl gl">vernostná karta</div><div class="logo">krasa.tt</div><div class="est">nail studio · Trnava</div><div class="who gl" id="who"></div></div>
+    <div class="back speck">
+      <div class="title gl">Ďakujem, že ste so mnou</div>
+      <div class="grid" id="stamps"></div>
+      <div class="rule">Každá návšteva = 1 hviezdička. 10. návšteva so zľavou 50 %.</div>
+    </div>
+    <div class="status gl" id="status"></div>
+    <div class="reward gl hide" id="reward">🎉 Táto návšteva je so zľavou −50 %</div>
+    <div class="qrbox"><div id="qr"></div><div class="qrt">Ukážte tento kód pri návšteve</div></div>
+    <div class="hint ${isStandalone?'hide':''}" id="hint">
+      📲 <b>Uložte si kartu na plochu:</b><br>
+      ${isIOS ? 'ťuknite dole na <b>Zdieľať</b> (štvorček so šípkou) → <b>Pridať na plochu</b>.' : 'ťuknite na <b>⋮</b> vpravo hore → <b>Pridať na plochu</b> alebo <b>Inštalovať</b>.'}
+    </div>`;
+  if(window.QRCode) new QRCode(document.getElementById('qr'),{text:BASE+'?a='+id,width:132,height:132,colorDark:'#4d6820',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  await refreshCard(id,true);
+  startPoll(id);
+}
+async function refreshCard(id,first){
+  let r;
+  try{ r=await api('card',{id}); }catch(e){ if(first) document.getElementById('status').textContent='Bez internetu 🙈'; return }
+  if(!r.ok){
+    if(r.err==='not_found'){ store.del('krasa_id'); $app.innerHTML='<div class="panel center"><h2 class="gl">Karta sa nenašla</h2><p class="muted">Napíšte, prosím, do Instagramu @krasa.tt 💗</p></div>'; stopPoll(); }
+    return;
+  }
+  document.getElementById('who').textContent=r.name;
+  const v=r.visits;
+  if(v!==shown){
+    let h='';
+    for(let i=1;i<=10;i++){
+      if(i===10) h+=`<div class="slot">${scallop(v>=STAMPS?'#a9cf6a':'#f9c6dc')}<span class="pc">−50%</span></div>`;
+      else h+=`<div class="slot${(!first&&i===v&&v>shown)?' new':''}">${scallop('#f9c6dc')}${i<=v?star(i):''}</div>`;
+    }
+    document.getElementById('stamps').innerHTML=h;
+    if(!first && v>shown) toast('Pribudla hviezdička ⭐');
+    if(!first && v===0 && shown>=STAMPS) toast('Zľava uplatnená 🎉 Karta začína odznova');
+    shown=v;
+  }
+  const left=STAMPS-v;
+  document.getElementById('status').textContent = v>=STAMPS ? 'Ďalšia návšteva je so zľavou −50 % 🥰' : `Ešte ${left} ${navWord(left)} a potom −50 %`;
+  document.getElementById('reward').classList.toggle('hide',v<STAMPS);
+}
+function startPoll(id){
+  pollUntil=Date.now()+10*60*1000;
+  stopPoll();
+  pollT=setInterval(()=>{ if(document.visibilityState!=='visible')return; if(Date.now()>pollUntil){stopPoll();return} refreshCard(id,false); },5000);
+}
+function stopPoll(){ if(pollT){clearInterval(pollT);pollT=null} }
+document.addEventListener('visibilitychange',()=>{
+  const id=params.get('k'); if(id&&document.visibilityState==='visible'){ refreshCard(id,false); if(!pollT) startPoll(id); }
+});
+
+/* ================= ADMIN ================= */
+const token=()=>store.get('krasa_admin');
+async function adminApi(action,data){
+  const r=await api(action,{...data,token:token()});
+  if(!r.ok && r.err==='auth'){ store.del('krasa_admin'); route(); throw new Error('auth'); }
+  return r;
+}
+function viewLogin(next){
+  document.title='krasa.tt · вход';
+  $app.innerHTML=`
+    <div class="panel">
+      <h2 class="ru">Вход для мастера</h2>
+      <p class="muted">Если ты клиентка — эта страница не для вас 💗<br><span style="font-size:13px">Táto stránka je len pre majsterku.</span></p>
+      <form id="f"><label for="p">PIN</label><input id="p" type="password" inputmode="numeric" autocomplete="current-password">
+      <button class="btn big">Войти</button><div class="err" id="e"></div></form>
+    </div>`;
+  document.getElementById('f').onsubmit=async ev=>{
+    ev.preventDefault();
+    const e=document.getElementById('e'); e.textContent='';
+    try{
+      const r=await api('login',{pin:document.getElementById('p').value});
+      if(r.ok){ store.set('krasa_admin',r.token); next(); }
+      else e.textContent = r.err==='locked' ? 'Слишком много попыток. Подожди 15 минут.' : r.err==='pin_not_set' ? 'PIN ещё не задан в Google (ADMIN_PIN).' : 'Неверный PIN';
+    }catch(err){ e.textContent='Нет связи. Попробуй ещё раз.' }
+  };
+}
+function mini(v){let h='';for(let i=1;i<=STAMPS;i++)h+=`<span class="${i<=v?'f':''}"></span>`;return `<div class="mini">${h}</div>`}
+function cardLink(id){return BASE+'?k='+encodeURIComponent(id)}
+async function copyLink(id){
+  const url=cardLink(id);
+  try{ await navigator.clipboard.writeText(url); toast('Ссылка скопирована, отправь её в Instagram'); }
+  catch(e){ prompt('Скопируй ссылку:',url); }
+}
+
+/* after scanning a client's QR */
+async function viewClient(id){
+  document.title='krasa.tt · клиентка';
+  $app.innerHTML='<div class="panel res"><p class="muted">Загружаю…</p></div>';
+  let r; try{ r=await adminApi('client',{id}); }catch(e){ return }
+  if(!r.ok){ $app.innerHTML='<div class="panel res"><h3 class="ru">Не найдено</h3><p class="muted">Такой карточки нет.</p></div>'+navLinks(); return }
+  drawClient(r.client);
+}
+function drawClient(c, msg){
+  const done=c.visits>=STAMPS;
+  let body;
+  if(msg) body=msg;
+  else if(c.today) body=`<p class="muted">Сегодня визит уже засчитан ✓</p>${mini(c.visits)}
+      <button class="btn big ghost" id="force">Всё равно добавить ещё один</button>`;
+  else if(done) body=`<p class="muted">${esc(c.ig)} · уже ${STAMPS} ${ruVisits(STAMPS)}</p>${mini(c.visits)}
+      <p style="font-weight:700;margin-top:8px">Сегодня 10-й визит: скидка −50 % 🎉</p>
+      <button class="btn big" id="add">Скидка −50 % использована ✓</button>`;
+  else body=`<p class="muted">${esc(c.ig)} · ${c.visits} из ${STAMPS}</p>${mini(c.visits)}
+      <button class="btn big" id="add">+1 визит</button>`;
+  $app.innerHTML=`<div class="panel res" id="res"><h3 class="gl">${esc(c.name)}</h3>${body}</div>${navLinks(c.id)}`;
+  const add=document.getElementById('add'), force=document.getElementById('force'), und=document.getElementById('undo');
+  if(add) add.onclick=()=>doVisit(c.id,false,add);
+  if(force) force.onclick=()=>doVisit(c.id,true,force);
+  if(und) und.onclick=()=>doUndo(c.id,und);
+}
+async function doVisit(id,force,btn){
+  btn.disabled=true;
+  let r; try{ r=await adminApi('visit',{id,force}); }catch(e){ btn.disabled=false; toast('Нет связи, попробуй ещё раз'); return }
+  if(!r.ok){ if(r.client) drawClient(r.client); else toast('Ошибка: '+r.err); return }
+  const c=r.client;
+  const msg = r.discount
+    ? `<div class="emo">🎉</div><p>Скидка −50 % отмечена.<br>Карточка начинается заново.</p><button class="btn ghost" id="undo" style="margin-top:12px">Отменить</button>`
+    : `<div class="emo">✓</div><p class="muted">Визит добавлен: ${c.visits} из ${STAMPS}${c.visits===STAMPS?'<br><b>В следующий раз −50 % 🥰</b>':''}</p>${mini(c.visits)}<button class="btn ghost" id="undo" style="margin-top:12px">Отменить</button>`;
+  drawClient(c,msg);
+  if(r.discount) document.getElementById('res').classList.add('gold');
+}
+async function doUndo(id,btn){
+  btn.disabled=true;
+  let r; try{ r=await adminApi('undo',{id}); }catch(e){ btn.disabled=false; return }
+  if(!r.ok){ toast('Нечего отменять'); return }
+  drawClient(r.client,`<div class="emo">↩️</div><p class="muted">Отменено. Сейчас ${r.client.visits} из ${STAMPS}</p>${mini(r.client.visits)}`);
+}
+function navLinks(id){
+  return `<div class="links">
+    ${id?`<button class="btn ghost" onclick="copyLink('${esc(id)}')">Ссылка на её карточку</button>`:''}
+    <a class="btn ghost" href="${BASE}?admin">Все клиентки</a></div>`;
+}
+
+/* list of all clients */
+let allClients=[];
+async function viewList(){
+  document.title='krasa.tt · мои клиентки';
+  $app.innerHTML=`
+    <div class="top"><h2 class="ru" style="color:var(--green);font-size:26px">Мои клиентки</h2><a href="#" id="out">выйти</a></div>
+    <input id="q" placeholder="Поиск по имени или Instagram">
+    <div class="panel" id="list"><p class="muted">Загружаю…</p></div>
+    <div class="panel">
+      <h2 class="ru" style="font-size:20px">Добавить клиентку</h2>
+      <p class="muted" style="font-size:14px">Например, у кого бумажная карточка: укажи, сколько уже штампов.</p>
+      <form id="nf">
+        <label>Имя</label><input id="nn" maxlength="40" required>
+        <label>Instagram</label><input id="ni" placeholder="@..." autocapitalize="off">
+        <label>Уже визитов (0–${STAMPS})</label><input id="nv" type="number" min="0" max="${STAMPS}" value="0" inputmode="numeric">
+        <button class="btn big">Добавить</button>
+      </form>
+    </div>
+    <div class="panel"><p class="muted" style="font-size:14px">QR для регистрации новых клиенток (распечатать и поставить в кабинете):</p>
+      <div class="qrbox" style="margin-top:8px"><div id="regqr"></div><div class="qrt">Naskenujte a získajte kartu</div></div>
+      <p class="center" style="font-size:13px;margin-top:8px;word-break:break-all">${esc(BASE)}</p></div>`;
+  if(window.QRCode) new QRCode(document.getElementById('regqr'),{text:BASE,width:160,height:160,colorDark:'#4d6820',colorLight:'#ffffff'});
+  document.getElementById('out').onclick=e=>{e.preventDefault();store.del('krasa_admin');route()};
+  document.getElementById('q').oninput=e=>drawList(e.target.value);
+  document.getElementById('nf').onsubmit=async ev=>{
+    ev.preventDefault();
+    const name=document.getElementById('nn').value.trim(); if(!name)return;
+    let r; try{ r=await adminApi('create',{name,ig:document.getElementById('ni').value,visits:document.getElementById('nv').value}); }catch(e){toast('Нет связи');return}
+    if(!r.ok){toast('Ошибка: '+r.err);return}
+    toast('Добавлено 💗'); ev.target.reset(); await loadList(); copyLink(r.client.id);
+  };
+  await loadList();
+}
+async function loadList(){
+  let r; try{ r=await adminApi('list',{}); }catch(e){ return }
+  if(!r.ok){ document.getElementById('list').innerHTML='<p class="err">Ошибка загрузки</p>'; return }
+  allClients=r.clients; drawList(document.getElementById('q').value);
+}
+function drawList(q=''){
+  q=q.toLowerCase().trim();
+  const rows=allClients.filter(c=>!q||(c.name+' '+c.ig).toLowerCase().includes(q));
+  document.getElementById('list').innerHTML = rows.length ? rows.map(c=>`
+    <div class="row"><div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="ig">${esc(c.ig)}${c.today?' · сегодня ✓':''}</div></div>
+    <div class="cnt">${c.visits}/${STAMPS}</div>
+    <a class="btn${c.visits>=STAMPS?' pink':''}" href="${BASE}?a=${encodeURIComponent(c.id)}">${c.visits>=STAMPS?'−50 %':'открыть'}</a></div>`).join('')
+    : `<p class="muted">${allClients.length?'Никого не нашла':'Пока нет клиенток'}</p>`;
+}
+
+/* ================= router ================= */
+function route(){
+  if(!API || API.startsWith('PASTE_')){ $app.innerHTML='<div class="panel">Нет адреса Google Apps Script в config.js</div>'; return }
+  const k=params.get('k'), a=params.get('a');
+  if(a){ token()?viewClient(a):viewLogin(()=>viewClient(a)); return }
+  if(params.has('admin')){ token()?viewList():viewLogin(viewList); return }
+  if(k){ viewCard(k); return }
+  const saved=store.get('krasa_id');
+  if(saved){ location.replace(BASE+'?k='+encodeURIComponent(saved)); return }
+  viewRegister();
+}
+route();
+</script>
+</body>
+</html>
