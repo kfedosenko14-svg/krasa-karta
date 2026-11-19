@@ -123,6 +123,7 @@ a.btn{text-decoration:none;text-align:center}
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
+const APP_VERSION = '5 · свайп';
 const BASE = location.origin + location.pathname;
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -419,7 +420,8 @@ async function viewList(){
     </div>
     <div class="panel"><p class="muted" style="font-size:14px">QR для регистрации новых клиенток (распечатать и поставить в кабинете):</p>
       <div class="qrbox" style="margin-top:8px"><div id="regqr"></div><div class="qrt">Naskenujte a získajte kartu</div></div>
-      <p class="center" style="font-size:13px;margin-top:8px;word-break:break-all">${esc(BASE)}</p></div>`;
+      <p class="center" style="font-size:13px;margin-top:8px;word-break:break-all">${esc(BASE)}</p></div>
+    <p class="center muted" style="font-size:12px;margin-top:14px">версия ${APP_VERSION}</p>`;
   if(window.QRCode) new QRCode(document.getElementById('regqr'),{text:BASE,width:160,height:160,colorDark:'#4d6820',colorLight:'#ffffff'});
   document.getElementById('out').onclick=e=>{e.preventDefault();store.del('krasa_admin');route()};
   document.getElementById('q').oninput=e=>drawList(e.target.value);
