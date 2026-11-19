@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="favicon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link href="https://fonts.googleapis.com/css2?family=Gluten:wght@800&family=Sour+Gummy:wght@500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gluten:wght@800&family=Sour+Gummy:wght@500;700&family=Balsamiq+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
   --green:#6a8a2e; --ink:#4d6820; --cream:#fffad6; --pink:#fcd3e3; --pink-mid:#f9c6dc;
@@ -92,6 +92,17 @@ a.btn{text-decoration:none;text-align:center}
 .scanov .bar{padding:16px 16px max(20px,env(safe-area-inset-bottom));background:var(--bg);text-align:center}
 .scanov .bar p{margin-bottom:10px;color:var(--ink)}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+/* languages */
+html[lang=uk] body{font-family:'Balsamiq Sans',system-ui,sans-serif;font-weight:400}
+html[lang=uk] .gl{font-family:'Balsamiq Sans',system-ui,sans-serif;font-weight:700}
+.lsw{display:flex;justify-content:flex-end;gap:4px;margin-bottom:10px}
+.lsw button{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:10px;padding:5px 10px;font:700 13px -apple-system,system-ui,sans-serif;cursor:pointer}
+.lsw button.on{background:var(--green);border-color:var(--green);color:#fff}
+.modal.lang{align-items:center}
+.modal.lang .sheet{padding:26px 20px 18px}
+.modal.lang .logo-s{font:700 40px/1 'Playfair Display',serif;color:var(--green);margin-bottom:10px}
+.modal.lang h3{font-size:16px;color:var(--muted);font-weight:600;margin-bottom:8px}
+.modal.lang .btn.big{margin-top:10px;font:700 20px -apple-system,system-ui,sans-serif}
 /* swipe-to-delete rows */
 #list{padding:6px 0;overflow:hidden}
 .sw{position:relative;overflow:hidden;border-bottom:1px solid #f1ebdc}
@@ -123,7 +134,7 @@ a.btn{text-decoration:none;text-align:center}
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
-const APP_VERSION = '5 · свайп';
+const APP_VERSION = '6 · языки';
 const BASE = location.origin + location.pathname;
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -157,18 +168,79 @@ function star(i){
 const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
+/* ================= CLIENT: languages ================= */
+const LANGS={sk:'🇸🇰 Slovensky',uk:'🇺🇦 Українська',en:'🇬🇧 English'};
+const T={
+ sk:{label:'vernostná karta',yourCard:'Vaša karta 💗',rule:'Každá návšteva = 1 hviezdička. 10. návšteva so zľavou 50 %.',
+  name:'Meno',igPh:'@vas.instagram',create:'Vytvoriť kartu',wait:'Chvíľku…',needName:'Napíšte, prosím, svoje meno.',
+  tooMany:'Skúste to, prosím, o chvíľu.',fail:'Nepodarilo sa. Skúste to znova.',thanks:'Ďakujem, že ste so mnou',
+  left:n=>`Ešte ${n} ${n===1?'návšteva':(n>=2&&n<=4)?'návštevy':'návštev'} a potom −50 %`,
+  next:'Ďalšia návšteva je so zľavou −50 % 🥰',reward:'🎉 Táto návšteva je so zľavou −50 %',show:'Ukážte tento kód pri návšteve',
+  saveT:'Uložte si kartu na plochu:',
+  ios:'ťuknite dole na <b>Zdieľať</b> (štvorček so šípkou) → <b>Pridať na plochu</b>.',
+  android:'ťuknite na <b>⋮</b> vpravo hore → <b>Pridať na plochu</b> alebo <b>Inštalovať</b>.',
+  star:'Pribudla hviezdička ⭐',used:'Zľava uplatnená 🎉 Karta začína odznova',
+  nf:'Karta sa nenašla',nfT:'Napíšte, prosím, do Instagramu @krasa.tt 💗',offline:'Bez internetu 🙈',title:'krasa.tt · vernostná karta'},
+ uk:{label:'картка лояльності',yourCard:'Ваша картка 💗',rule:'Кожен візит = 1 зірочка. 10-й візит зі знижкою 50 %.',
+  name:'Ім’я',igPh:'@vash.instagram',create:'Створити картку',wait:'Хвилинку…',needName:'Напишіть, будь ласка, своє ім’я.',
+  tooMany:'Спробуйте, будь ласка, трохи пізніше.',fail:'Не вдалося. Спробуйте ще раз.',thanks:'Дякую, що ви зі мною',
+  left:n=>`Ще ${n} ${n===1?'візит':(n>=2&&n<=4)?'візити':'візитів'}, а потім −50 %`,
+  next:'Наступний візит зі знижкою −50 % 🥰',reward:'🎉 Цей візит зі знижкою −50 %',show:'Покажіть цей код під час візиту',
+  saveT:'Збережіть картку на екран:',
+  ios:'натисніть унизу <b>Поділитися</b> (квадратик зі стрілкою) → <b>На початковий екран</b> (Add to Home Screen).',
+  android:'натисніть <b>⋮</b> угорі праворуч → <b>Додати на головний екран</b> або <b>Встановити</b>.',
+  star:'Додалася зірочка ⭐',used:'Знижку використано 🎉 Картка починається спочатку',
+  nf:'Картку не знайдено',nfT:'Напишіть, будь ласка, в Instagram @krasa.tt 💗',offline:'Немає інтернету 🙈',title:'krasa.tt · картка лояльності'},
+ en:{label:'loyalty card',yourCard:'Your card 💗',rule:'Every visit = 1 star. Your 10th visit is 50 % off.',
+  name:'Name',igPh:'@your.instagram',create:'Create my card',wait:'One moment…',needName:'Please enter your name.',
+  tooMany:'Please try again in a moment.',fail:'Something went wrong. Please try again.',thanks:'Thank you for being with me',
+  left:n=>`${n} more ${n===1?'visit':'visits'}, then −50 %`,
+  next:'Your next visit is −50 % 🥰',reward:'🎉 This visit is −50 %',show:'Show this code at your visit',
+  saveT:'Save the card to your home screen:',
+  ios:'tap <b>Share</b> at the bottom (square with an arrow) → <b>Add to Home Screen</b>.',
+  android:'tap <b>⋮</b> at the top right → <b>Add to Home screen</b> or <b>Install</b>.',
+  star:'New star added ⭐',used:'Discount used 🎉 Your card starts again',
+  nf:'Card not found',nfT:'Please message @krasa.tt on Instagram 💗',offline:'No internet 🙈',title:'krasa.tt · loyalty card'},
+};
+function getLang(){ const l=store.get('krasa_lang')||params.get('l'); return T[l]?l:null }
+let LANG=getLang()||'sk';
+function t(k,...a){ const v=T[LANG][k]; return typeof v==='function'?v(...a):v }
+function setLang(l){
+  LANG=l; store.set('krasa_lang',l); document.documentElement.lang=l;
+  const u=new URL(location.href); u.searchParams.set('l',l); history.replaceState(null,'',u);
+}
+document.documentElement.lang=LANG;
+function langSwitch(){
+  return `<div class="lsw">${Object.keys(LANGS).map(l=>`<button class="${l===LANG?'on':''}" onclick="switchLang('${l}')">${l==='uk'?'UA':l.toUpperCase()}</button>`).join('')}</div>`;
+}
+function switchLang(l){ setLang(l); route(); }
+function chooseLang(){
+  return new Promise(res=>{
+    const m=document.createElement('div'); m.className='modal lang';
+    m.innerHTML=`<div class="sheet"><div class="logo-s">krasa.tt</div>
+      <h3>Vyberte jazyk · Оберіть мову · Choose language</h3>
+      ${Object.entries(LANGS).map(([l,n])=>`<button class="btn big pink" data-l="${l}">${n}</button>`).join('')}</div>`;
+    document.body.appendChild(m);
+    m.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{ setLang(b.dataset.l); m.remove(); res(); });
+  });
+}
+function front(name){
+  return `<div class="front"><div class="lbl gl">${t('label')}</div><div class="logo">krasa.tt</div><div class="est">nail studio · Trnava</div>${name!==undefined?'<div class="who gl" id="who"></div>':''}</div>`;
+}
+
 /* ================= CLIENT: registration ================= */
-function viewRegister(){
-  document.title='krasa.tt · vernostná karta';
-  $app.innerHTML = `
-    <div class="front"><div class="lbl gl">vernostná karta</div><div class="logo">krasa.tt</div><div class="est">nail studio · Trnava</div></div>
+async function viewRegister(){
+  if(!getLang()) await chooseLang();
+  document.title=t('title');
+  $app.innerHTML = `${langSwitch()}
+    ${front()}
     <div class="panel">
-      <h2 class="gl">Vaša karta 💗</h2>
-      <p class="muted">Každá návšteva = 1 hviezdička. Na 10. návštevu máte zľavu 50 %.</p>
+      <h2 class="gl">${t('yourCard')}</h2>
+      <p class="muted">${t('rule')}</p>
       <form id="f">
-        <label for="n">Meno</label><input id="n" autocomplete="given-name" maxlength="40" required>
-        <label for="i">Instagram</label><input id="i" placeholder="@vas.instagram" autocapitalize="off" autocorrect="off" maxlength="40">
-        <button class="btn big" id="b">Vytvoriť kartu</button>
+        <label for="n">${t('name')}</label><input id="n" autocomplete="given-name" maxlength="40" required>
+        <label for="i">Instagram</label><input id="i" placeholder="${t('igPh')}" autocapitalize="off" autocorrect="off" maxlength="40">
+        <button class="btn big" id="b">${t('create')}</button>
         <div class="err" id="e"></div>
       </form>
     </div>`;
@@ -176,16 +248,16 @@ function viewRegister(){
     ev.preventDefault();
     const b=document.getElementById('b'), e=document.getElementById('e');
     const name=document.getElementById('n').value.trim(), ig=document.getElementById('i').value.trim();
-    if(!name){e.textContent='Napíšte, prosím, svoje meno.';return}
-    b.disabled=true;b.textContent='Chvíľku…';e.textContent='';
+    if(!name){e.textContent=t('needName');return}
+    b.disabled=true;b.textContent=t('wait');e.textContent='';
     try{
-      const r=await api('register',{name,ig});
+      const r=await api('register',{name,ig,lang:LANG});
       if(!r.ok) throw new Error(r.err);
       store.set('krasa_id',r.id);
-      location.replace(BASE+'?k='+encodeURIComponent(r.id));
+      location.replace(BASE+'?k='+encodeURIComponent(r.id)+'&l='+LANG);
     }catch(err){
-      e.textContent = err.message==='too_many' ? 'Skúste to, prosím, o chvíľu.' : 'Nepodarilo sa. Skúste to znova.';
-      b.disabled=false;b.textContent='Vytvoriť kartu';
+      e.textContent = err.message==='too_many' ? t('tooMany') : t('fail');
+      b.disabled=false;b.textContent=t('create');
     }
   };
 }
@@ -194,19 +266,21 @@ function viewRegister(){
 let shown=-1, pollT=null, pollUntil=0;
 async function viewCard(id){
   store.set('krasa_id',id);
-  $app.innerHTML = `
-    <div class="front"><div class="lbl gl">vernostná karta</div><div class="logo">krasa.tt</div><div class="est">nail studio · Trnava</div><div class="who gl" id="who"></div></div>
+  if(!params.get('l')) setLang(LANG);
+  document.title=t('title');
+  shown=-1;
+  $app.innerHTML = `${langSwitch()}
+    ${front('')}
     <div class="back speck">
-      <div class="title gl">Ďakujem, že ste so mnou</div>
+      <div class="title gl">${t('thanks')}</div>
       <div class="grid" id="stamps"></div>
-      <div class="rule">Každá návšteva = 1 hviezdička. 10. návšteva so zľavou 50 %.</div>
+      <div class="rule">${t('rule')}</div>
     </div>
     <div class="status gl" id="status"></div>
-    <div class="reward gl hide" id="reward">🎉 Táto návšteva je so zľavou −50 %</div>
-    <div class="qrbox"><div id="qr"></div><div class="qrt">Ukážte tento kód pri návšteve</div></div>
+    <div class="reward gl hide" id="reward">${t('reward')}</div>
+    <div class="qrbox"><div id="qr"></div><div class="qrt">${t('show')}</div></div>
     <div class="hint ${isStandalone?'hide':''}" id="hint">
-      📲 <b>Uložte si kartu na plochu:</b><br>
-      ${isIOS ? 'ťuknite dole na <b>Zdieľať</b> (štvorček so šípkou) → <b>Pridať na plochu</b>.' : 'ťuknite na <b>⋮</b> vpravo hore → <b>Pridať na plochu</b> alebo <b>Inštalovať</b>.'}
+      📲 <b>${t('saveT')}</b><br>${isIOS ? t('ios') : t('android')}
     </div>`;
   if(window.QRCode) new QRCode(document.getElementById('qr'),{text:BASE+'?a='+id,width:132,height:132,colorDark:'#4d6820',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
   await refreshCard(id,true);
@@ -214,12 +288,13 @@ async function viewCard(id){
 }
 async function refreshCard(id,first){
   let r;
-  try{ r=await api('card',{id}); }catch(e){ if(first) document.getElementById('status').textContent='Bez internetu 🙈'; return }
+  try{ r=await api('card',{id}); }catch(e){ if(first) document.getElementById('status').textContent=t('offline'); return }
   if(!r.ok){
-    if(r.err==='not_found'){ store.del('krasa_id'); $app.innerHTML='<div class="panel center"><h2 class="gl">Karta sa nenašla</h2><p class="muted">Napíšte, prosím, do Instagramu @krasa.tt 💗</p></div>'; stopPoll(); }
+    if(r.err==='not_found'){ store.del('krasa_id'); $app.innerHTML=`<div class="panel center"><h2 class="gl">${t('nf')}</h2><p class="muted">${t('nfT')}</p></div>`; stopPoll(); }
     return;
   }
-  document.getElementById('who').textContent=r.name;
+  const who=document.getElementById('who'); if(!who) return;
+  who.textContent=r.name;
   const v=r.visits;
   if(v!==shown){
     let h='';
@@ -228,12 +303,11 @@ async function refreshCard(id,first){
       else h+=`<div class="slot${(!first&&i===v&&v>shown)?' new':''}">${scallop('#f9c6dc')}${i<=v?star(i):''}</div>`;
     }
     document.getElementById('stamps').innerHTML=h;
-    if(!first && v>shown) toast('Pribudla hviezdička ⭐');
-    if(!first && v===0 && shown>=STAMPS) toast('Zľava uplatnená 🎉 Karta začína odznova');
+    if(!first && v>shown) toast(t('star'));
+    if(!first && v===0 && shown>=STAMPS) toast(t('used'));
     shown=v;
   }
-  const left=STAMPS-v;
-  document.getElementById('status').textContent = v>=STAMPS ? 'Ďalšia návšteva je so zľavou −50 % 🥰' : `Ešte ${left} ${navWord(left)} a potom −50 %`;
+  document.getElementById('status').textContent = v>=STAMPS ? t('next') : t('left',STAMPS-v);
   document.getElementById('reward').classList.toggle('hide',v<STAMPS);
 }
 function startPoll(id){
@@ -446,7 +520,7 @@ function drawList(q=''){
   list.innerHTML = rows.length ? rows.map(c=>`
     <div class="sw" data-id="${esc(c.id)}">
     <button class="del" aria-label="Удалить">${BIN_SVG}Удалить</button>
-    <div class="row"><div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="ig">${esc(c.ig)}${c.today?' · сегодня ✓':''}</div></div>
+    <div class="row"><div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="ig">${esc(c.ig)}${({sk:' 🇸🇰',uk:' 🇺🇦',en:' 🇬🇧'})[c.lang]||''}${c.today?' · сегодня ✓':''}</div></div>
     <div class="cnt">${c.visits}/${STAMPS}</div>
     <a class="btn${c.visits>=STAMPS?' pink':''}" href="${BASE}?a=${encodeURIComponent(c.id)}">${c.visits>=STAMPS?'−50 %':'открыть'}</a></div></div>`).join('')
     : `<p class="muted" style="padding:12px 18px">${allClients.length?'Никого не нашла':'Пока нет клиенток'}</p>`;
