@@ -103,7 +103,7 @@ html[lang=en] .back .title{font-size:clamp(15px,4.6vw,18px)}
 .modal.lang{align-items:center;justify-content:center;flex-direction:column;background:var(--bg);animation:none}
 .modal.lang .sheet{box-shadow:0 8px 30px rgba(77,104,32,.12);animation:none}
 .modal.lang .sheet{padding:26px 20px 18px}
-.modal.lang .logo-s{font:700 clamp(48px,15vw,64px)/1 'Playfair Display',serif;color:var(--green);margin-bottom:22px}
+.modal.lang .logo-s{font:700 clamp(40px,12vw,48px)/1 'Playfair Display',serif;color:var(--green);margin-bottom:10px}
 .modal.lang h3{font-size:16px;color:var(--muted);font-weight:600;margin-bottom:8px}
 .modal.lang .btn.big{margin-top:10px;font:700 20px -apple-system,system-ui,sans-serif}
 /* swipe-to-delete rows */
@@ -137,7 +137,7 @@ html[lang=en] .back .title{font-size:clamp(15px,4.6vw,18px)}
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
-const APP_VERSION = '10 · кремовый фон';
+const APP_VERSION = '11 · krasa.tt в окошке';
 const BASE = location.origin + location.pathname;
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -220,7 +220,7 @@ function switchLang(l){ setLang(l); route(); }
 function chooseLang(){
   return new Promise(res=>{
     const m=document.createElement('div'); m.className='modal lang';
-    m.innerHTML=`<div class="logo-s">krasa.tt</div><div class="sheet">
+    m.innerHTML=`<div class="sheet"><div class="logo-s">krasa.tt</div>
       <h3>Vyberte jazyk · Оберіть мову · Choose language</h3>
       ${Object.entries(LANGS).map(([l,n])=>`<button class="btn big pink" data-l="${l}">${n}</button>`).join('')}</div>`;
     document.body.appendChild(m);
