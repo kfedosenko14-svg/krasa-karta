@@ -86,6 +86,11 @@ a.btn{text-decoration:none;text-align:center}
 .links{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
+.scanov{position:fixed;inset:0;background:#000;z-index:50;display:flex;flex-direction:column}
+.scanov video{flex:1;width:100%;object-fit:cover;min-height:0}
+.scanov .frame{position:absolute;left:50%;top:42%;width:66vmin;height:66vmin;transform:translate(-50%,-50%);border:4px solid var(--pink);border-radius:28px;box-shadow:0 0 0 100vmax rgba(0,0,0,.45);pointer-events:none}
+.scanov .bar{padding:16px 16px max(20px,env(safe-area-inset-bottom));background:var(--bg);text-align:center}
+.scanov .bar p{margin-bottom:10px;color:var(--ink)}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .top a{color:var(--muted);font-size:14px}
 </style>
@@ -96,6 +101,7 @@ a.btn{text-decoration:none;text-align:center}
 
 <script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
@@ -298,9 +304,52 @@ async function doUndo(id,btn){
   drawClient(r.client,`<div class="emo">↩️</div><p class="muted">Отменено. Сейчас ${r.client.visits} из ${STAMPS}</p>${mini(r.client.visits)}`);
 }
 function navLinks(id){
-  return `<div class="links">
+  return `<button class="btn big" onclick="startScan()">📷 Сканировать следующую</button>
+    <div class="links">
     ${id?`<button class="btn ghost" onclick="copyLink('${esc(id)}')">Ссылка на её карточку</button>`:''}
     <a class="btn ghost" href="${BASE}?admin">Все клиентки</a></div>`;
+}
+
+/* in-app QR scanner (camera inside the master's icon) */
+let scanStream=null, scanRAF=null;
+async function startScan(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ toast('Камера здесь недоступна'); return }
+  if(!window.jsQR){ toast('Сканер ещё грузится, попробуй через секунду'); return }
+  const ov=document.createElement('div'); ov.className='scanov'; ov.id='scanov';
+  ov.innerHTML=`<video playsinline muted autoplay></video><div class="frame"></div>
+    <div class="bar"><p>Наведи камеру на QR с карточки клиентки</p><button class="btn ghost" id="scx">Закрыть</button></div>`;
+  document.body.appendChild(ov);
+  document.getElementById('scx').onclick=stopScan;
+  const video=ov.querySelector('video');
+  try{
+    scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+  }catch(e){ stopScan(); toast('Нет доступа к камере. Разреши камеру в настройках.'); return }
+  video.srcObject=scanStream; await video.play().catch(()=>{});
+  const cv=document.createElement('canvas'), cx=cv.getContext('2d',{willReadFrequently:true});
+  const tick=()=>{
+    if(!scanStream) return;
+    if(video.readyState>=2 && video.videoWidth){
+      const w=Math.min(720,video.videoWidth), h=Math.round(video.videoHeight*w/video.videoWidth);
+      cv.width=w; cv.height=h; cx.drawImage(video,0,0,w,h);
+      const code=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'dontInvert'});
+      if(code&&code.data){
+        const id=idFromQR(code.data);
+        if(id){ if(navigator.vibrate) navigator.vibrate(60); stopScan(); location.href=BASE+'?a='+encodeURIComponent(id); return }
+        ov.querySelector('.bar p').textContent='Это не карточка krasa.tt 🙈';
+      }
+    }
+    scanRAF=requestAnimationFrame(tick);
+  };
+  tick();
+}
+function idFromQR(text){
+  try{ const u=new URL(text); const id=u.searchParams.get('a')||u.searchParams.get('k'); return id&&/^[A-Za-z0-9]{12,32}$/.test(id)?id:null }
+  catch(e){ return null }
+}
+function stopScan(){
+  if(scanRAF) cancelAnimationFrame(scanRAF); scanRAF=null;
+  if(scanStream) scanStream.getTracks().forEach(t=>t.stop()); scanStream=null;
+  const ov=document.getElementById('scanov'); if(ov) ov.remove();
 }
 
 /* list of all clients */
@@ -309,6 +358,7 @@ async function viewList(){
   document.title='krasa.tt · мои клиентки';
   $app.innerHTML=`
     <div class="top"><h2 class="ru" style="color:var(--green);font-size:26px">Мои клиентки</h2><a href="#" id="out">выйти</a></div>
+    <button class="btn big" style="margin:4px 0 14px" onclick="startScan()">📷 Сканировать QR</button>
     <input id="q" placeholder="Поиск по имени или Instagram">
     <div class="panel" id="list"><p class="muted">Загружаю…</p></div>
     <div class="panel">
