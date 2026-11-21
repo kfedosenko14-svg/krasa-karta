@@ -125,6 +125,29 @@ html[lang=en] .back .title{font-size:clamp(15px,4.6vw,18px)}
 .modal .btn.red{background:#e0475f;color:#fff}
 @keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(40px);opacity:0}}
 .top a{color:var(--muted);font-size:14px}
+/* client: save-to-home-screen guide */
+.lnk{border:0;background:none;color:var(--green);font-family:inherit;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:2px;margin-top:6px;cursor:pointer;padding:0}
+#inst{margin-top:12px}
+.modal.guide{align-items:flex-start;padding-top:max(28px,env(safe-area-inset-top));background:rgba(30,40,20,.6)}
+.modal.guide .sheet{text-align:left;padding:22px 20px 16px}
+.modal.guide .gh{font-size:23px;color:var(--green);text-align:center;line-height:1.15}
+.modal.guide .muted{text-align:center;font-size:15px;margin:6px 0 4px}
+.steps{list-style:none;margin:12px 0 4px;counter-reset:s}
+.steps li{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:17px;color:var(--ink);counter-increment:s}
+.steps li:last-child{border:0}
+.steps li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:50%;background:var(--pink);color:var(--green);font:800 14px/24px -apple-system,system-ui,sans-serif;text-align:center}
+.steps.one li::before{display:none}
+.steps .ico{flex:none;width:42px;height:42px;border-radius:12px;background:#f2f2f6;color:#1f7cf6;display:flex;align-items:center;justify-content:center}
+.steps .ico svg{width:24px;height:24px}
+.steps .ico.wide{width:auto;padding:0 8px;gap:3px;color:#222}.steps .ico.wide i{font-style:normal;color:#aaa;font-size:14px}.steps .ico.wide b{font:900 14px/1 -apple-system,system-ui,sans-serif}
+.steps .ico.dots{font:900 18px/1 -apple-system,system-ui,sans-serif;letter-spacing:1px;color:#222}
+.gnote{font-size:13px;color:var(--muted);margin:4px 0 0}
+.glater{display:block;width:100%;margin-top:8px;padding:13px}
+.garrow{position:fixed;font:900 64px/1 -apple-system,system-ui,sans-serif;color:var(--pink);text-shadow:0 2px 10px rgba(0,0,0,.35);pointer-events:none}
+.garrow.down{left:50%;bottom:calc(64px + env(safe-area-inset-bottom));transform:translateX(-50%) rotate(90deg);animation:bob 1s ease-in-out infinite}
+.garrow.up{right:18px;top:max(4px,env(safe-area-inset-top));transform:rotate(-90deg);animation:bob 1s ease-in-out infinite}
+@keyframes bob{50%{translate:0 10px}}
+.garrow.up{animation-name:bobup}@keyframes bobup{50%{translate:0 -10px}}
 /* master: tap circles + stepper */
 .pick{margin:14px 0 4px}
 .slot.pk{border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit}
@@ -158,7 +181,7 @@ html[lang=en] .back .title{font-size:clamp(15px,4.6vw,18px)}
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
-const APP_VERSION = '12 · кружочки и счётчик −/+';
+const APP_VERSION = '13 · помощь «на экран»';
 const BASE = location.origin + location.pathname;
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -191,6 +214,7 @@ function star(i){
 }
 const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInApp = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|musical_ly|TikTok/i.test(navigator.userAgent);
 
 /* ================= CLIENT: languages ================= */
 const LANGS={sk:'🇸🇰 Slovensky',uk:'🇺🇦 Українська',en:'🇬🇧 English'};
@@ -201,8 +225,16 @@ const T={
   left:n=>`Ešte ${n} ${n===1?'návšteva':(n>=2&&n<=4)?'návštevy':'návštev'} a potom −50 %`,
   next:'Ďalšia návšteva je so zľavou −50 % 🥰',reward:'🎉 Táto návšteva je so zľavou −50 %',show:'Ukážte tento kód pri návšteve',
   saveT:'Uložte si kartu na plochu:',
-  ios:'ťuknite na <b>Zdieľať</b> (štvorček so šípkou; ak ho nevidíte, najprv ťuknite na <b>•••</b>) → <b>Pridať na plochu</b>.',
+  ios:'ťuknite na <b>Zdieľať</b> (štvorček so šípkou; ak ho nevidíte, najprv ťuknite na <b>☰</b> alebo <b>•••</b>) → <b>Pridať na plochu</b>.',
   android:'ťuknite na <b>⋮</b> vpravo hore → <b>Pridať na plochu</b> alebo <b>Inštalovať</b>.',
+  installBtn:'📲 Uložiť kartu na plochu',installed:'Karta je na ploche 💗',how:'Ukázať ako',
+  gT:'Uložte si kartu na plochu 📲',gSub:'Potom ju otvoríte jedným ťuknutím, ako aplikáciu.',
+  g1:'Dole ťuknite na <b>menu</b>',g2:'Potom na <b>Zdieľať</b>',g3:'Vyberte <b>Pridať na plochu</b>',
+  gNote:'Na staršom iPhone je <b>Zdieľať</b> priamo dole.',gOk:'Rozumiem 💗',
+  iaT:'Otvorte kartu v prehliadači',iaSub:'V Instagrame sa karta nedá uložiť na plochu.',
+  iaIOS:'Hore vpravo ťuknite na <b>•••</b> → <b>Otvoriť v externom prehliadači</b>',
+  iaAnd:'Hore vpravo ťuknite na <b>⋮</b> → <b>Otvoriť v Chrome</b>',
+  iaCopy:'Kopírovať odkaz',copied:'Odkaz skopírovaný, vložte ho do prehliadača',later:'Neskôr',
   star:'Pribudla hviezdička ⭐',used:'Zľava uplatnená 🎉 Karta začína odznova',
   nf:'Karta sa nenašla',nfT:'Napíšte, prosím, do Instagramu @krasa.tt 💗',offline:'Bez internetu 🙈',title:'krasa.tt · vernostná karta'},
  uk:{label:'картка лояльності',yourCard:'Ваша картка 💗',rule:'Кожен візит = 1 зірочка. 10-й візит зі знижкою 50 %.',
@@ -211,8 +243,16 @@ const T={
   left:n=>`Ще ${n} ${n===1?'візит':(n>=2&&n<=4)?'візити':'візитів'}, а потім −50 %`,
   next:'Наступний візит зі знижкою −50 % 🥰',reward:'🎉 Цей візит зі знижкою −50 %',show:'Покажіть цей код під час візиту',
   saveT:'Збережіть картку на екран:',
-  ios:'натисніть <b>Поширити</b> (квадратик зі стрілкою; якщо його не видно, спершу натисніть <b>•••</b>) → <b>На початковий екран</b>.',
+  ios:'натисніть <b>Поширити</b> (квадратик зі стрілкою; якщо його не видно, спершу натисніть <b>☰</b> або <b>•••</b>) → <b>На початковий екран</b>.',
   android:'натисніть <b>⋮</b> угорі праворуч → <b>Додати на головний екран</b> або <b>Встановити</b>.',
+  installBtn:'📲 Зберегти картку на екран',installed:'Картка на екрані 💗',how:'Показати як',
+  gT:'Збережіть картку на екран 📲',gSub:'Потім відкриватимете її одним дотиком, як застосунок.',
+  g1:'Унизу натисніть <b>меню</b>',g2:'Потім <b>Поширити</b>',g3:'Оберіть <b>На початковий екран</b>',
+  gNote:'На старішому iPhone <b>Поширити</b> одразу внизу.',gOk:'Зрозуміло 💗',
+  iaT:'Відкрийте картку в браузері',iaSub:'В Instagram картку не можна зберегти на екран.',
+  iaIOS:'Угорі праворуч натисніть <b>•••</b> → <b>Відкрити в зовнішньому браузері</b>',
+  iaAnd:'Угорі праворуч натисніть <b>⋮</b> → <b>Відкрити в Chrome</b>',
+  iaCopy:'Скопіювати посилання',copied:'Посилання скопійовано, вставте його в браузер',later:'Пізніше',
   star:'Додалася зірочка ⭐',used:'Знижку використано 🎉 Картка починається спочатку',
   nf:'Картку не знайдено',nfT:'Напишіть, будь ласка, в Instagram @krasa.tt 💗',offline:'Немає інтернету 🙈',title:'krasa.tt · картка лояльності'},
  en:{label:'loyalty card',yourCard:'Your card 💗',rule:'Every visit = 1 star. Your 10th visit is 50 % off.',
@@ -221,8 +261,16 @@ const T={
   left:n=>`${n} more ${n===1?'visit':'visits'}, then −50 %`,
   next:'Your next visit is −50 % 🥰',reward:'🎉 This visit is −50 %',show:'Show this code at your visit',
   saveT:'Save the card to your home screen:',
-  ios:'tap <b>Share</b> (square with an arrow; if you don’t see it, tap <b>•••</b> first) → <b>Add to Home Screen</b>.',
+  ios:'tap <b>Share</b> (square with an arrow; if you don’t see it, tap <b>☰</b> or <b>•••</b> first) → <b>Add to Home Screen</b>.',
   android:'tap <b>⋮</b> at the top right → <b>Add to Home screen</b> or <b>Install</b>.',
+  installBtn:'📲 Save the card to my home screen',installed:'The card is on your home screen 💗',how:'Show me how',
+  gT:'Save the card to your home screen 📲',gSub:'Then it opens with one tap, like an app.',
+  g1:'Tap the <b>menu</b> at the bottom',g2:'Then <b>Share</b>',g3:'Choose <b>Add to Home Screen</b>',
+  gNote:'On older iPhones <b>Share</b> is right at the bottom.',gOk:'Got it 💗',
+  iaT:'Open the card in your browser',iaSub:'Instagram can’t save the card to your home screen.',
+  iaIOS:'Tap <b>•••</b> at the top right → <b>Open in external browser</b>',
+  iaAnd:'Tap <b>⋮</b> at the top right → <b>Open in Chrome</b>',
+  iaCopy:'Copy link',copied:'Link copied, paste it into your browser',later:'Later',
   star:'New star added ⭐',used:'Discount used 🎉 Your card starts again',
   nf:'Card not found',nfT:'Please message @krasa.tt on Instagram 💗',offline:'No internet 🙈',title:'krasa.tt · loyalty card'},
 };
@@ -305,13 +353,60 @@ async function viewCard(id){
     </div>
     <div class="status gl" id="status"></div>
     <div class="reward gl hide" id="reward">${t('reward')}</div>
+    <button class="btn big ${deferredPrompt?'':'hide'}" id="inst" onclick="doInstall()">${t('installBtn')}</button>
     <div class="qrbox"><div id="qr"></div><div class="qrt">${t('show')}</div></div>
     <div class="hint ${isStandalone?'hide':''}" id="hint">
-      📲 <b>${t('saveT')}</b><br>${isIOS ? t('ios') : t('android')}
+      📲 <b>${isInApp?t('iaT'):t('saveT')}</b><br>${isInApp ? (isIOS?t('iaIOS'):t('iaAnd')) : isIOS ? t('ios') : t('android')}
+      ${isInApp||isIOS?`<br><button class="lnk" onclick="${isInApp?'inAppGuide()':'iosGuide()'}">${isInApp?t('iaCopy'):t('how')}</button>`:''}
     </div>`;
   if(window.QRCode) new QRCode(document.getElementById('qr'),{text:BASE+'?a='+id,width:132,height:132,colorDark:'#4d6820',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  // first time on this phone: show how to save the card (once)
+  if(!isStandalone && !store.get('krasa_guide')){ if(isInApp) inAppGuide(); else if(isIOS) iosGuide(); }
   await refreshCard(id,true);
   startPoll(id);
+}
+
+/* ================= CLIENT: save to home screen ================= */
+// No phone lets a website add itself to the home screen, so we make the steps as short as possible.
+let deferredPrompt=null;
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; const b=document.getElementById('inst'); if(b) b.classList.remove('hide'); });
+addEventListener('appinstalled',()=>{ deferredPrompt=null; ['inst','hint'].forEach(x=>{const e=document.getElementById(x); if(e) e.classList.add('hide')}); toast(t('installed')); });
+async function doInstall(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  try{ await deferredPrompt.userChoice; }catch(e){}
+  deferredPrompt=null; const b=document.getElementById('inst'); if(b) b.classList.add('hide');
+}
+const SHARE_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+const MENU_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h9"/></svg>';
+const PLUS_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+function guideModal(html, arrowCls){
+  const m=document.createElement('div'); m.className='modal guide';
+  m.innerHTML=`<div class="sheet">${html}</div><div class="garrow ${arrowCls}">➜</div>`;
+  document.body.appendChild(m);
+  const close=()=>{ store.set('krasa_guide','1'); m.remove(); };
+  m.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+  return m;
+}
+function iosGuide(){
+  guideModal(`<div class="gh gl">${t('gT')}</div><p class="muted">${t('gSub')}</p>
+    <ol class="steps">
+      <li><span class="ico wide">${MENU_SVG}<i>/</i><b>•••</b></span><span>${t('g1')}</span></li>
+      <li><span class="ico">${SHARE_SVG}</span><span>${t('g2')}</span></li>
+      <li><span class="ico">${PLUS_SVG}</span><span>${t('g3')}</span></li>
+    </ol>
+    <p class="gnote">${t('gNote')}</p>
+    <button class="btn big" data-close>${t('gOk')}</button>`, 'down');
+}
+function inAppGuide(){
+  const m=guideModal(`<div class="gh gl">${t('iaT')}</div><p class="muted">${t('iaSub')}</p>
+    <ol class="steps one"><li><span class="ico dots">${isIOS?'•••':'⋮'}</span><span>${isIOS?t('iaIOS'):t('iaAnd')}</span></li></ol>
+    <button class="btn big" id="gcopy">${t('iaCopy')}</button>
+    <button class="btn ghost glater" data-close>${t('later')}</button>`, 'up');
+  m.querySelector('#gcopy').onclick=async()=>{
+    const url=BASE+'?k='+encodeURIComponent(params.get('k')||store.get('krasa_id')||'')+'&l='+LANG;
+    try{ await navigator.clipboard.writeText(url); toast(t('copied')); }catch(e){ prompt('',url); }
+  };
 }
 async function refreshCard(id,first){
   let r;
