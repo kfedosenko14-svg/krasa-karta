@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- security: the page may only load code from these places and only talk to the Google script -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>krasa.tt</title>
 <meta name="theme-color" content="#fcd3e3">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -55,6 +58,7 @@ body{background:var(--bg);color:var(--ink);font:500 16px/1.4 'Sour Gummy',system
 .qrbox{margin:16px auto 0;background:#fff;border-radius:16px;padding:14px;width:fit-content;text-align:center;border:2px solid var(--pink)}
 .qrbox #qr img,.qrbox #qr canvas{display:block;margin:0 auto}
 .qrt{font-size:14px;color:var(--muted);margin-top:6px}
+.privacy{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.35}
 .hint{margin-top:16px;background:#fff;border:1px dashed var(--green);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--ink)}
 
 /* forms & panels */
@@ -176,12 +180,13 @@ html[lang=en] .back .title{font-size:clamp(15px,4.6vw,18px)}
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
+<!-- integrity = the browser refuses the file if a CDN ever serves something else -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" integrity="sha384-hStSInNIZ8ljtOVrmrgf7zdHMapaLBWoSnPTtF0nzsybp4+LuhDz6sHuEVpWIX8o" crossorigin="anonymous" defer></script>
 <script>
 const API = window.KRASA_API;
 const STAMPS = 9;
-const APP_VERSION = '13 · помощь «на экран»';
+const APP_VERSION = '14 · безопасность';
 const BASE = location.origin + location.pathname;
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -227,6 +232,7 @@ const T={
   saveT:'Uložte si kartu na plochu:',
   ios:'ťuknite na <b>Zdieľať</b> (štvorček so šípkou; ak ho nevidíte, najprv ťuknite na <b>☰</b> alebo <b>•••</b>) → <b>Pridať na plochu</b>.',
   android:'ťuknite na <b>⋮</b> vpravo hore → <b>Pridať na plochu</b> alebo <b>Inštalovať</b>.',
+  privacy:'🔒 Meno a Instagram používam len pre túto vernostnú kartu, nikomu ich nedávam. Ak chcete kartu a údaje vymazať, napíšte mi na Instagram @krasa.tt.',
   installBtn:'📲 Uložiť kartu na plochu',installed:'Karta je na ploche 💗',how:'Ukázať ako',
   gT:'Uložte si kartu na plochu 📲',gSub:'Potom ju otvoríte jedným ťuknutím, ako aplikáciu.',
   g1:'Dole ťuknite na <b>menu</b>',g2:'Potom na <b>Zdieľať</b>',g3:'Vyberte <b>Pridať na plochu</b>',
@@ -245,6 +251,7 @@ const T={
   saveT:'Збережіть картку на екран:',
   ios:'натисніть <b>Поширити</b> (квадратик зі стрілкою; якщо його не видно, спершу натисніть <b>☰</b> або <b>•••</b>) → <b>На початковий екран</b>.',
   android:'натисніть <b>⋮</b> угорі праворуч → <b>Додати на головний екран</b> або <b>Встановити</b>.',
+  privacy:'🔒 Ім’я та Instagram я використовую лише для цієї картки лояльності й нікому не передаю. Якщо хочете видалити картку й дані, напишіть мені в Instagram @krasa.tt.',
   installBtn:'📲 Зберегти картку на екран',installed:'Картка на екрані 💗',how:'Показати як',
   gT:'Збережіть картку на екран 📲',gSub:'Потім відкриватимете її одним дотиком, як застосунок.',
   g1:'Унизу натисніть <b>меню</b>',g2:'Потім <b>Поширити</b>',g3:'Оберіть <b>На початковий екран</b>',
@@ -263,6 +270,7 @@ const T={
   saveT:'Save the card to your home screen:',
   ios:'tap <b>Share</b> (square with an arrow; if you don’t see it, tap <b>☰</b> or <b>•••</b> first) → <b>Add to Home Screen</b>.',
   android:'tap <b>⋮</b> at the top right → <b>Add to Home screen</b> or <b>Install</b>.',
+  privacy:'🔒 I use your name and Instagram only for this loyalty card and never share them. To delete your card and data, message me on Instagram @krasa.tt.',
   installBtn:'📲 Save the card to my home screen',installed:'The card is on your home screen 💗',how:'Show me how',
   gT:'Save the card to your home screen 📲',gSub:'Then it opens with one tap, like an app.',
   g1:'Tap the <b>menu</b> at the bottom',g2:'Then <b>Share</b>',g3:'Choose <b>Add to Home Screen</b>',
@@ -318,6 +326,7 @@ async function viewRegister(){
         <button class="btn big" id="b">${t('create')}</button>
         <div class="err" id="e"></div>
       </form>
+      <p class="privacy">${t('privacy')}</p>
     </div>`;
   document.getElementById('f').onsubmit = async ev=>{
     ev.preventDefault();
@@ -463,8 +472,8 @@ function viewLogin(next){
     const e=document.getElementById('e'); e.textContent='';
     try{
       const r=await api('login',{pin:document.getElementById('p').value});
-      if(r.ok){ store.set('krasa_admin',r.token); next(); }
-      else e.textContent = r.err==='locked' ? 'Слишком много попыток. Подожди 15 минут.' : r.err==='pin_not_set' ? 'PIN ещё не задан в Google (ADMIN_PIN).' : 'Неверный PIN';
+      if(r.ok){ store.set('krasa_admin',r.token); if(r.weak) store.set('krasa_weak','1'); else store.del('krasa_weak'); next(); }
+      else e.textContent = r.err==='locked' ? 'Слишком много попыток. Подожди 15 минут.' : r.err==='locked_day' ? 'Слишком много неверных PIN за сутки. Вход закрыт до завтра.' : r.err==='pin_not_set' ? 'PIN ещё не задан в Google (ADMIN_PIN).' : 'Неверный PIN';
     }catch(err){ e.textContent='Нет связи. Попробуй ещё раз.' }
   };
 }
@@ -656,7 +665,15 @@ async function viewList(){
     <div class="panel"><p class="muted" style="font-size:14px">QR для регистрации новых клиенток (распечатать и поставить в кабинете):</p>
       <div class="qrbox" style="margin-top:8px"><div id="regqr"></div><div class="qrt">Naskenujte a získajte kartu</div></div>
       <p class="center" style="font-size:13px;margin-top:8px;word-break:break-all">${esc(BASE)}</p></div>
+    <div class="panel"><p class="muted" style="font-size:14px">🔒 Потеряла телефон или кто-то узнал PIN? Нажми, и все устройства выйдут из админки. Потом войди заново с PIN (лучше сначала поменяй PIN в Google).</p>
+      <button class="btn ghost" style="margin-top:10px;color:#b4415e;border-color:#f0c9d4" id="outall">Выйти на всех устройствах</button></div>
     <p class="center muted" style="font-size:12px;margin-top:14px">версия ${APP_VERSION}</p>`;
+  if(store.get('krasa_weak')) document.querySelector('.top').insertAdjacentHTML('afterend','<p class="err" style="margin:0 0 8px">⚠️ PIN короче 6 цифр. Для безопасности поменяй его на длиннее (Google Apps Script → Script properties → ADMIN_PIN).</p>');
+  document.getElementById('outall').onclick=async()=>{
+    if(!confirm('Выйти на всех устройствах?')) return;
+    try{ await adminApi('logoutAll',{}); }catch(e){}
+    store.del('krasa_admin'); route();
+  };
   if(window.QRCode) new QRCode(document.getElementById('regqr'),{text:BASE,width:160,height:160,colorDark:'#4d6820',colorLight:'#ffffff'});
   document.getElementById('out').onclick=e=>{e.preventDefault();store.del('krasa_admin');route()};
   document.getElementById('q').oninput=e=>drawList(e.target.value);
